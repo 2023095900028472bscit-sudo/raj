@@ -1,13 +1,21 @@
-import requests
+from flask import Flask, request
 from datetime import datetime
 import pytz
 
-# Get timezone from IP
-data = requests.get("https://ipapi.co/json/").json()
-timezone = data["timezone"]
+app = Flask(__name__)
 
-tz = pytz.timezone(timezone)
-now = datetime.now(tz)
+@app.route("/timezone", methods=["POST"])
+def get_time():
+    data = request.json
+    tz_name = data["timezone"]
 
-print("Timezone:", timezone)
-print("Current time:", now.strftime("%Y-%m-%d %H:%M:%S"))
+    tz = pytz.timezone(tz_name)
+    now = datetime.now(tz)
+
+    return {
+        "timezone": tz_name,
+        "current_time": now.strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+if __name__ == "__main__":
+    app.run(debug=True)
